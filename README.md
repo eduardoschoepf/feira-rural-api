@@ -86,7 +86,7 @@ feira-rural-api/
 └── README.md
 ```
 
-# 📁 AImplementando uma arquitetura hexagonal (Ports and Adapters) orientada a funcionalidades  
+# 📁 Implementando uma arquitetura hexagonal (Ports and Adapters) orientada a funcionalidades  
 ```pgsql
 src/
 └── main/
