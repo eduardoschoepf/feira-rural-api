@@ -1,4 +1,4 @@
-package com.feirarural.api.dto;
+package com.feirarural.api.categoria.dto;
 
 public record CategoriaResponse(
     Long id,

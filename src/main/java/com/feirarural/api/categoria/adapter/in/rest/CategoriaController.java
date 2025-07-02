@@ -1,10 +1,8 @@
-package com.feirarural.api.controller;
+package com.feirarural.api.categoria.adapter.in.rest;
 
-import com.feirarural.api.model.Categoria;
-import com.feirarural.api.service.CategoriaService;
-
-import com.feirarural.api.dto.CategoriaRequest;
-import com.feirarural.api.dto.CategoriaResponse;
+import com.feirarural.api.categoria.domain.port.CategoriaService;
+import com.feirarural.api.categoria.dto.CategoriaRequest;
+import com.feirarural.api.categoria.dto.CategoriaResponse;
 
 import java.util.List;
 import org.springframework.web.bind.annotation.RequestMapping;

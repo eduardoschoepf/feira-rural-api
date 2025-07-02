@@ -1,4 +1,4 @@
-package com.feirarural.api.model;
+package com.feirarural.api.categoria.domain.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
