@@ -80,7 +80,38 @@ feira-rural-api/
 ├── target/
 │   ├── feira-rural-api-0.0.1-SNAPSHOT.jar
 │   └── classes/
+│   └──...
 ├── src/
 ├── pom.xml
 └── README.md
+```
+
+# 📁 AImplementando uma arquitetura hexagonal (Ports and Adapters) orientada a funcionalidades  
+```pgsql
+src/
+└── main/
+    └── java/
+        └── com/
+            └── feirarural/
+                └── api/
+                    └── categoria/
+                        ├── domain/
+                        │   ├── model/
+                        │   │   └── Categoria.java
+                        │   └── port/
+                        │       ├── CategoriaRepository.java     // porta de saída
+                        │       └── CategoriaService.java        // porta de entrada
+                        ├── application/
+                        │   └── service/
+                        │       └── CategoriaServiceImpl.java    // implementação do caso de uso
+                        ├── adapter/
+                        │   ├── in/
+                        │   │   └── rest/
+                        │   │       └── CategoriaController.java
+                        │   └── out/
+                        │       └── persistence/
+                        │           └── CategoriaJpaRepository.java
+                        └── dto/
+                            ├── CategoriaRequest.java
+                            └── CategoriaResponse.java
 ```
