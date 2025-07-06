@@ -130,3 +130,66 @@ src/
                             ├── CategoriaRequest.java
                             └── CategoriaResponse.java
 ```
+
+Abaixo está um diagrama simples mostrando como os principais elementos da funcionalidade categoria se comunicam dentro da arquitetura hexagonal (Ports and Adapters) no seu projeto feira-rural-api. Usei uma estrutura visual para facilitar a leitura:
+```scss
+          [🔗 Entrada - REST Controller]
+                        │
+                        ▼
+        ┌────────────────────────────────────┐
+        │ CategoriaController (Adapter In)   │
+        └────────────────────────────────────┘
+                        │
+                        ▼
+        ┌────────────────────────────────────┐
+        │ CategoriaService (Port de Entrada) │◄────────────┐
+        └────────────────────────────────────┘             │
+                        │                                  │
+                        ▼                                  │
+        ┌────────────────────────────────────┐             │
+        │ CategoriaServiceImpl (Application) │             │
+        └────────────────────────────────────┘             │
+                        │                                  │
+                        ▼                                  │
+        ┌────────────────────────────────────┐             │
+        │ CategoriaRepository (Port de Saída)│─────────────┘
+        └────────────────────────────────────┘
+                        │
+                        ▼
+        ┌────────────────────────────────────────┐
+        │ CategoriaJpaRepository (Adapter Out)   │
+        └────────────────────────────────────────┘
+                        │
+                        ▼
+        ┌────────────────────────────────────┐
+        │ CategoriaEntity (JPA)              │
+        └────────────────────────────────────┘
+
+                    ↑           ↑
+                    │           │
+     CategoriaRequest       CategoriaResponse
+          (DTO In)               (DTO Out)
+
+                    ↑           ↑
+                    └──── Mapeamento ─────┘
+
+                        ▼
+        ┌────────────────────────────────────┐
+        │ Categoria (Domain Model)           │
+        └────────────────────────────────────┘
+```
+
+# 🧩 Resumo das responsabilidades:
+Controller: recebe requisições HTTP.  
+
+DTOs: transportam dados entre cliente e backend.  
+
+Service (Interface + Impl): contém a lógica de negócio da aplicação.  
+
+Portas (Ports): interfaces que abstraem dependências (entrada e saída).  
+
+Adapters (In/Out): implementam as portas, lidando com REST ou persistência.  
+
+Domain Model: representa a entidade central da lógica de negócio.  
+
+Entity JPA: representa a entidade para persistência no banco de dados.  
