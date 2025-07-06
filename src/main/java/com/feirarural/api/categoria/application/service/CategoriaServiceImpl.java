@@ -25,7 +25,7 @@ public class CategoriaServiceImpl implements CategoriaService {
     public CategoriaResponse salvar(CategoriaRequest request) {
         Categoria categoria = new Categoria(null, request.nome(), request.descricao());
         Categoria salva = repository.salvar(categoria);
-        return new CategoriaResponse(salva.getId(), salva.getNome(), salva.getDescricao());
+        return CategoriaResponse.from(salva);
     }
 
     @Override

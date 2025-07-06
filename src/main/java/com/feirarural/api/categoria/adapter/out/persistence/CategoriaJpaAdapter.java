@@ -18,22 +18,27 @@ public class CategoriaJpaAdapter implements CategoriaRepository {
 
     @Override
     public Categoria salvar(Categoria categoria) {
-        return jpaRepository.save(categoria);
+        CategoriaEntity entity = CategoriaEntity.fromDomain(categoria);
+        CategoriaEntity saved = jpaRepository.save(entity);
+        return saved.toDomain();
     }
 
     @Override
     public Optional<Categoria> buscarPorId(Long id) {
-        return jpaRepository.findById(id);
+        return jpaRepository.findById(id).map(CategoriaEntity::toDomain);
     }
 
     @Override
     public List<Categoria> listarTodas() {
-        return jpaRepository.findAll();
+        return jpaRepository.findAll().stream()
+                .map(CategoriaEntity::toDomain)
+                .toList();
     }
 
     @Override
     public void excluir(Categoria categoria) {
-        jpaRepository.delete(categoria);
+        CategoriaEntity entity = CategoriaEntity.fromDomain(categoria);
+        jpaRepository.delete(entity);
     }
 
     @Override
