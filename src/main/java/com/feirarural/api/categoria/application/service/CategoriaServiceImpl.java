@@ -5,6 +5,9 @@ import com.feirarural.api.categoria.domain.port.CategoriaRepository;
 import com.feirarural.api.categoria.domain.port.CategoriaService;
 import com.feirarural.api.categoria.dto.CategoriaRequest;
 import com.feirarural.api.categoria.dto.CategoriaResponse;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,5 +42,23 @@ public class CategoriaServiceImpl implements CategoriaService {
         return new CategoriaResponse(categoria.getId(), categoria.getNome(), categoria.getDescricao());
     }
 
-    
+    @Override
+    public CategoriaResponse atualizar(Long id, CategoriaRequest request) {
+        Categoria categoria = repository.buscarPorId(id)
+            .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada com ID: " + id));
+
+        categoria.setNome(request.nome());
+        categoria.setDescricao(request.descricao());
+
+        Categoria atualizada = repository.salvar(categoria);
+        return new CategoriaResponse(atualizada.getId(), atualizada.getNome(), atualizada.getDescricao());
+    }
+
+    @Override
+    public void excluir(Long id) {
+        Categoria categoria = repository.buscarPorId(id)
+            .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada com ID: " + id));
+
+        repository.excluir(categoria);
+    }
 }

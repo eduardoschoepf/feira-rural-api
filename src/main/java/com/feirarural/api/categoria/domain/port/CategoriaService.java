@@ -9,4 +9,6 @@ public interface CategoriaService {
     List<CategoriaResponse> listarTodas();
     CategoriaResponse salvar(CategoriaRequest dto);
     CategoriaResponse buscarPorIdDTO(Long id);
+    CategoriaResponse atualizar(Long id, CategoriaRequest request);
+    void excluir(Long id);
 }

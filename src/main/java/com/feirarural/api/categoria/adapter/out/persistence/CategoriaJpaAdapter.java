@@ -32,6 +32,11 @@ public class CategoriaJpaAdapter implements CategoriaRepository {
     }
 
     @Override
+    public void excluir(Categoria categoria) {
+        jpaRepository.delete(categoria);
+    }
+
+    @Override
     public Categoria buscarPorIdDTO(Long id) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'buscarPorIdDTO'");

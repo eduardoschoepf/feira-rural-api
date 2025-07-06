@@ -10,4 +10,5 @@ public interface CategoriaRepository {
     Categoria salvar(Categoria categoria);
     Optional<Categoria> buscarPorId(Long id);
     Categoria buscarPorIdDTO(Long id);
+    void excluir(Categoria categoria);
 }
