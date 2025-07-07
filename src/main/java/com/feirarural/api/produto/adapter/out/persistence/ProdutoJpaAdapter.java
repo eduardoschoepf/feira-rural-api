@@ -5,8 +5,6 @@ import com.feirarural.api.produto.domain.model.Produto;
 import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
-import com.feirarural.api.produto.adapter.out.persistence.ProdutoEntity;
-import com.feirarural.api.produto.adapter.out.persistence.ProdutoJpaRepository;
 
 @Component
 public class ProdutoJpaAdapter implements ProdutoRepository {
