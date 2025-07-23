@@ -2,6 +2,7 @@ package com.feirarural.api.user.dto;
 
 import com.feirarural.api.user.domain.model.User;
 
+
 public record UserResponse(
     Long id,
     String nome,

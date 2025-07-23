@@ -1,8 +1,8 @@
 package com.feirarural.api.user.adapter.out.persistence;
 
-import com.feirarural.api.produto.adapter.out.persistence.ProdutoEntity;
 import com.feirarural.api.user.domain.model.User;
-import com.feirarural.api.user.domain.port.UserRepository;
+import com.feirarural.api.user.domain.port.out.UserRepository;
+
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public class UserJpaAdapter implements UserRepository {
     }
 
     @Override
-    public User cadastrar(User user) {
+    public User salvar(User user) {
         UserEntity entity = UserEntity.fromDomain(user);
         UserEntity saved = jpaRepository.save(entity);
         return saved.toDomain();
@@ -30,11 +30,6 @@ public class UserJpaAdapter implements UserRepository {
     }
 
     @Override
-    public Optional<User> buscarPorEmail(String email) {
-        return jpaRepository.findByEmail(email).map(UserEntity::toDomain);
-    }
-
-    @Override
     public List<User> listarTodos() {
         return jpaRepository.findAll().stream()
                 .map(UserEntity::toDomain)
@@ -43,7 +38,7 @@ public class UserJpaAdapter implements UserRepository {
 
     @Override
     public void excluir(User user) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'excluir'");
+        UserEntity entity = UserEntity.fromDomain(user);
+        jpaRepository.delete(entity);
     }
 }

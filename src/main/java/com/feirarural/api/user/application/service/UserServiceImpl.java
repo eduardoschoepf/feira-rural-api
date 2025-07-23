@@ -1,71 +1,52 @@
 package com.feirarural.api.user.application.service;
 
 import com.feirarural.api.user.domain.model.User;
-import com.feirarural.api.user.domain.port.UserRepository;
-import com.feirarural.api.user.domain.port.UserService;
-import com.feirarural.api.user.dto.UserRequest;
-import com.feirarural.api.user.dto.UserResponse;
+import com.feirarural.api.user.domain.port.in.UserUseCase;
+import com.feirarural.api.user.domain.port.out.UserRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserUseCase {
 
-    private final UserRepository userRepository;
+    private final UserRepository repository;
 
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserServiceImpl(UserRepository repository) {
+        this.repository = repository;
     }
 
     @Override
-    public List<UserResponse> listarTodos() {
-        return userRepository.listarTodos().stream()
-                .map(UserResponse::from)
-                .toList();
+    public List<User> listarTodos() {
+        return repository.listarTodos();
     }
 
     @Override
-    public UserResponse cadastrar(UserRequest user) {
-        User newUser = new User(null, user.nome(), user.email(), user.senhaCriptografada(), user.tipo());
-        User savedUser = userRepository.cadastrar(newUser);
-        return UserResponse.from(savedUser);
+    public User salvar(User user) {
+        return repository.salvar(user);
     }
 
     @Override
-    public UserResponse atualizar(Long id, UserRequest request) {
-        User user = userRepository.buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
-
-        user.setNome(request.nome());
-        user.setEmail(request.email());
-        user.setSenhaCriptografada(request.senhaCriptografada());
-        user.setTipo(request.tipo());
-
-        User updatedUser = userRepository.cadastrar(user);
-        return UserResponse.from(updatedUser);
+    public User atualizar(Long id, User request) {
+        User user = repository.buscarPorId(id).orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com ID: " + id));
+        user.setNome(request.getNome());
+        user.setEmail(request.getEmail());
+        user.setTipo(request.getTipo());
+        user.setSenhaCriptografada(request.getSenhaCriptografada());
+        return repository.salvar(user);
     }
 
     @Override
-    public UserResponse buscarPorId(Long id) {  
-        User user = userRepository.buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
-        return UserResponse.from(user);
+    public User buscarPorId(Long id) {
+        return repository.buscarPorId(id).orElseThrow(() -> new EntityNotFoundException("Usuário não encontrado com ID: " + id));
     }
 
     @Override
-    public UserResponse buscarPorEmail(String email) {
-        User user = userRepository.buscarPorEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com email: " + email));
-            return UserResponse.from(user);
-    }
-
-    @Override
-    public boolean excluir(Long id) {
-        User user = userRepository.buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
-        userRepository.excluir(user);
-        return true;
+    public void excluir(Long id) {
+        User user = buscarPorId(id);
+        repository.excluir(user);
     }
 }
