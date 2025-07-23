@@ -1,4 +1,4 @@
-package com.feirarural.api.categoria.domain.port;
+package com.feirarural.api.categoria.domain.port.out;
 
 import com.feirarural.api.categoria.domain.model.Categoria;
 
@@ -9,6 +9,5 @@ public interface CategoriaRepository {
     List<Categoria> listarTodas();
     Categoria salvar(Categoria categoria);
     Optional<Categoria> buscarPorId(Long id);
-    Categoria buscarPorIdDTO(Long id);
     void excluir(Categoria categoria);
 }

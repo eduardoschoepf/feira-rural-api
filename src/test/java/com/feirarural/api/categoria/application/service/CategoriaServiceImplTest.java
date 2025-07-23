@@ -1,105 +1,112 @@
 package com.feirarural.api.categoria.application.service;
 
-import com.feirarural.api.categoria.domain.model.Categoria;
-import com.feirarural.api.categoria.domain.port.CategoriaRepository;
-import com.feirarural.api.categoria.dto.CategoriaRequest;
-import com.feirarural.api.categoria.dto.CategoriaResponse;
-import jakarta.persistence.EntityNotFoundException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import com.feirarural.api.categoria.domain.model.Categoria;
+import com.feirarural.api.categoria.domain.port.out.CategoriaRepository;
+import com.feirarural.api.categoria.application.service.CategoriaServiceImpl;
 
-class CategoriaServiceImplTest {
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.*;
 
+public class CategoriaServiceImplTest {
+
+    @Mock
     private CategoriaRepository repository;
+
+    @InjectMocks
     private CategoriaServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        repository = mock(CategoriaRepository.class);
-        service = new CategoriaServiceImpl(repository);
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void deveSalvarCategoriaComSucesso() {
-        CategoriaRequest request = new CategoriaRequest("Frutas", "Categoria de frutas");
-        Categoria salva = new Categoria(1L, "Frutas", "Categoria de frutas");
-
-        when(repository.salvar(any(Categoria.class))).thenReturn(salva);
-
-        CategoriaResponse response = service.salvar(request);
-
-        assertNotNull(response);
-        assertEquals("Frutas", response.nome());
-        assertEquals(1L, response.id());
-    }
-
-    @Test
-    void deveListarTodasCategorias() {
-        List<Categoria> categorias = List.of(
-                new Categoria(1L, "Verduras", "Verdes"),
-                new Categoria(2L, "Carnes", "Frescas")
+    void listarTodas_deveRetornarListaCategorias() {
+        List<Categoria> mockCategorias = List.of(
+            new Categoria(1L, "Frutas", "Frutas frescas"),
+            new Categoria(2L, "Verduras", "Verduras orgânicas")
         );
 
-        when(repository.listarTodas()).thenReturn(categorias);
+        when(repository.listarTodas()).thenReturn(mockCategorias);
 
-        List<CategoriaResponse> respostas = service.listarTodas();
+        List<Categoria> resultado = service.listarTodas();
 
-        assertEquals(2, respostas.size());
-        assertEquals("Verduras", respostas.get(0).nome());
+        assertEquals(2, resultado.size());
+        assertEquals("Frutas", resultado.get(0).getNome());
+        verify(repository).listarTodas();
     }
 
     @Test
-    void deveBuscarCategoriaPorId() {
-        Categoria categoria = new Categoria(1L, "Legumes", "Frescos");
+    void salvar_deveChamarRepositoryESalvarCategoria() {
+        Categoria categoriaEntrada = new Categoria(null, "Cereais", "Diversos cereais");
+        Categoria categoriaSalva = new Categoria(3L, "Cereais", "Diversos cereais");
+
+        when(repository.salvar(categoriaEntrada)).thenReturn(categoriaSalva);
+
+        Categoria resultado = service.salvar(categoriaEntrada);
+
+        assertNotNull(resultado.getId());
+        assertEquals("Cereais", resultado.getNome());
+        verify(repository).salvar(categoriaEntrada);
+    }
+
+    @Test
+    void buscarPorId_quandoExiste_deveRetornarCategoria() {
+        Categoria categoria = new Categoria(1L, "Legumes", "Legumes variados");
+
         when(repository.buscarPorId(1L)).thenReturn(Optional.of(categoria));
 
-        CategoriaResponse response = service.buscarPorIdDTO(1L);
+        Categoria resultado = service.buscarPorId(1L);
 
-        assertEquals("Legumes", response.nome());
+        assertEquals("Legumes", resultado.getNome());
+        verify(repository).buscarPorId(1L);
     }
 
     @Test
-    void deveLancarExcecaoAoBuscarCategoriaInexistente() {
-        when(repository.buscarPorId(99L)).thenReturn(Optional.empty());
+    void buscarPorId_quandoNaoExiste_deveLancarExcecao() {
+        when(repository.buscarPorId(1L)).thenReturn(Optional.empty());
 
-        assertThrows(RuntimeException.class, () -> service.buscarPorIdDTO(99L));
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+            service.buscarPorId(1L);
+        });
+
+        assertEquals("Categoria não encontrada", exception.getMessage());
+        verify(repository).buscarPorId(1L);
     }
 
     @Test
-    void deveAtualizarCategoria() {
-        Categoria existente = new Categoria(1L, "Legumes", "Antiga");
-        Categoria atualizada = new Categoria(1L, "Legumes", "Atualizada");
-        CategoriaRequest request = new CategoriaRequest("Legumes", "Atualizada");
+    void atualizar_deveAtualizarCategoriaExistente() {
+        Categoria categoriaExistente = new Categoria(1L, "Antigo", "Descrição antiga");
+        Categoria categoriaAtualizada = new Categoria(null, "Novo", "Descrição nova");
 
-        when(repository.buscarPorId(1L)).thenReturn(Optional.of(existente));
-        when(repository.salvar(any(Categoria.class))).thenReturn(atualizada);
+        when(repository.buscarPorId(1L)).thenReturn(Optional.of(categoriaExistente));
+        when(repository.salvar(any(Categoria.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        CategoriaResponse response = service.atualizar(1L, request);
+        Categoria resultado = service.atualizar(1L, categoriaAtualizada);
 
-        assertEquals("Atualizada", response.descricao());
+        assertEquals("Novo", resultado.getNome());
+        assertEquals("Descrição nova", resultado.getDescricao());
+        verify(repository).buscarPorId(1L);
+        verify(repository).salvar(categoriaExistente);
     }
 
     @Test
-    void deveExcluirCategoria() {
-        Categoria categoria = new Categoria(1L, "Grãos", "Descrição");
+    void excluir_deveChamarRepositoryExcluir() {
+        Categoria categoria = new Categoria(1L, "Legumes", "Legumes variados");
 
         when(repository.buscarPorId(1L)).thenReturn(Optional.of(categoria));
+        doNothing().when(repository).excluir(categoria);
 
         service.excluir(1L);
 
-        verify(repository, times(1)).excluir(categoria);
-    }
-
-    @Test
-    void deveLancarExcecaoAoExcluirCategoriaInexistente() {
-        when(repository.buscarPorId(99L)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> service.excluir(99L));
+        verify(repository).buscarPorId(1L);
+        verify(repository).excluir(categoria);
     }
 }

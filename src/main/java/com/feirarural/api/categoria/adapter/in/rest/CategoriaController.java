@@ -1,8 +1,10 @@
 package com.feirarural.api.categoria.adapter.in.rest;
 
-import com.feirarural.api.categoria.domain.port.CategoriaService;
 import com.feirarural.api.categoria.dto.CategoriaRequest;
 import com.feirarural.api.categoria.dto.CategoriaResponse;
+import com.feirarural.api.categoria.application.mapper.CategoriaMapper;
+import com.feirarural.api.categoria.domain.model.Categoria;
+import com.feirarural.api.categoria.domain.port.in.CategoriaUseCase; 
 
 import java.util.List;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,37 +24,47 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/categorias")
 public class CategoriaController {
-    private final CategoriaService categoriaService;
 
-    public CategoriaController(CategoriaService categoriaService) {
-        this.categoriaService = categoriaService;
+    private final CategoriaUseCase categoriaUseCase;
+    private final CategoriaMapper mapper;
+
+    public CategoriaController(CategoriaUseCase categoriaUseCase, CategoriaMapper mapper) {
+        this.categoriaUseCase = categoriaUseCase;
+        this.mapper = mapper;
     }
 
     @GetMapping
     public ResponseEntity<List<CategoriaResponse>> listarTodas() {
-        return ResponseEntity.ok(categoriaService.listarTodas());
+        List<Categoria> categorias = categoriaUseCase.listarTodas();
+        List<CategoriaResponse> responses = categorias.stream()
+            .map(mapper::toResponse)
+            .toList();
+        return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<CategoriaResponse> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(categoriaService.buscarPorIdDTO(id));
+        Categoria categoria = categoriaUseCase.buscarPorId(id);
+        return ResponseEntity.ok(mapper.toResponse(categoria));
+    }
+
+    @PostMapping
+    public ResponseEntity<CategoriaResponse> criar(@RequestBody CategoriaRequest request) {
+        Categoria categoria = mapper.toDomain(request);
+        Categoria salva = categoriaUseCase.salvar(categoria);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(salva));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<CategoriaResponse> atualizar(@PathVariable Long id, @RequestBody CategoriaRequest request) {
-        CategoriaResponse response = categoriaService.atualizar(id, request);
-        return ResponseEntity.ok(response);
+        Categoria categoria = mapper.toDomain(request);
+        Categoria atualizada = categoriaUseCase.atualizar(id, categoria);
+        return ResponseEntity.ok(mapper.toResponse(atualizada));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> excluir(@PathVariable Long id) {
-        categoriaService.excluir(id);
+        categoriaUseCase.excluir(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<CategoriaResponse> criar(@Valid @RequestBody CategoriaRequest request) {
-        return ResponseEntity.ok(categoriaService.salvar(request));
     }
 }

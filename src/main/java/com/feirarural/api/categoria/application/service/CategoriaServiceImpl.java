@@ -1,19 +1,15 @@
 package com.feirarural.api.categoria.application.service;
 
 import com.feirarural.api.categoria.domain.model.Categoria;
-import com.feirarural.api.categoria.domain.port.CategoriaRepository;
-import com.feirarural.api.categoria.domain.port.CategoriaService;
-import com.feirarural.api.categoria.dto.CategoriaRequest;
-import com.feirarural.api.categoria.dto.CategoriaResponse;
-
-import jakarta.persistence.EntityNotFoundException;
+import com.feirarural.api.categoria.domain.port.in.CategoriaUseCase;
+import com.feirarural.api.categoria.domain.port.out.CategoriaRepository;
 
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class CategoriaServiceImpl implements CategoriaService {
+public class CategoriaServiceImpl implements CategoriaUseCase {
 
     private final CategoriaRepository repository;
 
@@ -22,43 +18,32 @@ public class CategoriaServiceImpl implements CategoriaService {
     }
 
     @Override
-    public CategoriaResponse salvar(CategoriaRequest request) {
-        Categoria categoria = new Categoria(null, request.nome(), request.descricao());
-        Categoria salva = repository.salvar(categoria);
-        return CategoriaResponse.from(salva);
+    public List<Categoria> listarTodas() {
+        return repository.listarTodas();
     }
 
     @Override
-    public List<CategoriaResponse> listarTodas() {
-        return repository.listarTodas().stream()
-                .map(c -> new CategoriaResponse(c.getId(), c.getNome(), c.getDescricao()))
-                .toList();
+    public Categoria salvar(Categoria categoria) {
+        return repository.salvar(categoria);
     }
 
     @Override
-    public CategoriaResponse buscarPorIdDTO(Long id) {
-        Categoria categoria = repository.buscarPorId(id)
+    public Categoria buscarPorId(Long id) {
+        return repository.buscarPorId(id)
                 .orElseThrow(() -> new RuntimeException("Categoria não encontrada"));
-        return new CategoriaResponse(categoria.getId(), categoria.getNome(), categoria.getDescricao());
     }
 
     @Override
-    public CategoriaResponse atualizar(Long id, CategoriaRequest request) {
-        Categoria categoria = repository.buscarPorId(id)
-            .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada com ID: " + id));
-
-        categoria.setNome(request.nome());
-        categoria.setDescricao(request.descricao());
-
-        Categoria atualizada = repository.salvar(categoria);
-        return new CategoriaResponse(atualizada.getId(), atualizada.getNome(), atualizada.getDescricao());
+    public Categoria atualizar(Long id, Categoria categoria) {
+        Categoria existente = buscarPorId(id);
+        existente.setNome(categoria.getNome());
+        existente.setDescricao(categoria.getDescricao());
+        return repository.salvar(existente);
     }
 
     @Override
     public void excluir(Long id) {
-        Categoria categoria = repository.buscarPorId(id)
-            .orElseThrow(() -> new EntityNotFoundException("Categoria não encontrada com ID: " + id));
-
+        Categoria categoria = buscarPorId(id);
         repository.excluir(categoria);
     }
 }

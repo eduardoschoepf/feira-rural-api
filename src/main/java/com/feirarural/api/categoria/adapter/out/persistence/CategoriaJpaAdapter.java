@@ -1,7 +1,8 @@
 package com.feirarural.api.categoria.adapter.out.persistence;
 
 import com.feirarural.api.categoria.domain.model.Categoria;
-import com.feirarural.api.categoria.domain.port.CategoriaRepository;
+import com.feirarural.api.categoria.domain.port.out.CategoriaRepository;
+
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -39,11 +40,5 @@ public class CategoriaJpaAdapter implements CategoriaRepository {
     public void excluir(Categoria categoria) {
         CategoriaEntity entity = CategoriaEntity.fromDomain(categoria);
         jpaRepository.delete(entity);
-    }
-
-    @Override
-    public Categoria buscarPorIdDTO(Long id) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'buscarPorIdDTO'");
     }
 }
