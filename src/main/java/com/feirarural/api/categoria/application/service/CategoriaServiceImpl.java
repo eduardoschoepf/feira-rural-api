@@ -38,6 +38,7 @@ public class CategoriaServiceImpl implements CategoriaUseCase {
         Categoria existente = buscarPorId(id);
         existente.setNome(categoria.getNome());
         existente.setDescricao(categoria.getDescricao());
+        
         return repository.salvar(existente);
     }
 
