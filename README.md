@@ -30,7 +30,7 @@ Antes de executar os comandos abaixo, certifique-se de ter:
 
 ---
 
-Abaixo está um diagrama simples mostrando como os principais elementos da funcionalidade categoria se comunicam dentro da arquitetura hexagonal (Ports and Adapters) no seu projeto feira-rural-api. Usei uma estrutura visual para facilitar a leitura:
+Abaixo está um diagrama simples mostrando como os principais elementos da funcionalidade categoria se comunicam dentro da arquitetura hexagonal (Ports and Adapters). Usei uma estrutura visual para facilitar a leitura:
 ```
           [🔗 Entrada - REST Controller]
                         │
@@ -88,17 +88,13 @@ Abaixo está um diagrama simples mostrando como os principais elementos da funci
 # 🧩 Resumo das responsabilidades:
 Controller: recebe requisições HTTP.  
 
-DTOs: transportam dados entre cliente e backend.  
+Adapters: isolam entrada e saída
 
-Service (Interface + Impl): contém a lógica de negócio da aplicação.  
+Application: contém regras de orquestração (serviços)
 
-Portas (Ports): interfaces que abstraem dependências (entrada e saída).  
+Domain: contém regras de negócio e abstrações (ports, models)
 
-Adapters (In/Out): implementam as portas, lidando com REST ou persistência.  
-
-Domain Model: representa a entidade central da lógica de negócio.  
-
-Entity JPA: representa a entidade para persistência no banco de dados.  
+DTOs & Mapper: fazem a ponte entre mundo externo e domínio 
 
 ```
 /src/main/java/com/dominio/projeto/entidade/
