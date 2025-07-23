@@ -31,51 +31,58 @@ Antes de executar os comandos abaixo, certifique-se de ter:
 ---
 
 Abaixo está um diagrama simples mostrando como os principais elementos da funcionalidade categoria se comunicam dentro da arquitetura hexagonal (Ports and Adapters) no seu projeto feira-rural-api. Usei uma estrutura visual para facilitar a leitura:
-```scss
+```
           [🔗 Entrada - REST Controller]
                         │
                         ▼
         ┌────────────────────────────────────┐
-        │ CategoriaController (Adapter In)   │
+        │ EntidadeController                 │ ◄────────────── Adapter In (REST)
         └────────────────────────────────────┘
                         │
                         ▼
         ┌────────────────────────────────────┐
-        │ CategoriaService (Port de Entrada) │◄────────────┐
-        └────────────────────────────────────┘             │
-                        │                                  │
-                        ▼                                  │
-        ┌────────────────────────────────────┐             │
-        │ CategoriaServiceImpl (Application) │             │
-        └────────────────────────────────────┘             │
-                        │                                  │
-                        ▼                                  │
-        ┌────────────────────────────────────┐             │
-        │ CategoriaRepository (Port de Saída)│─────────────┘
+        │ EntidadeUseCase                    │ ◄────────────── Porta de Entrada (interface)
         └────────────────────────────────────┘
                         │
                         ▼
-        ┌────────────────────────────────────────┐
-        │ CategoriaJpaRepository (Adapter Out)   │
-        └────────────────────────────────────────┘
+        ┌────────────────────────────────────┐
+        │ EntidadeServiceImpl                │ ◄────────────── Application / Service
+        └────────────────────────────────────┘
                         │
                         ▼
         ┌────────────────────────────────────┐
-        │ CategoriaEntity (JPA)              │
+        │ EntidadeRepository                 │ ◄────────────── Porta de Saída (interface)
         └────────────────────────────────────┘
-
-                    ↑           ↑
-                    │           │
-     CategoriaRequest       CategoriaResponse
-          (DTO In)               (DTO Out)
-
-                    ↑           ↑
-                    └──── Mapeamento ─────┘
-
+                        │
                         ▼
         ┌────────────────────────────────────┐
-        │ Categoria (Domain Model)           │
+        │ EntidadeRepositoryAdapter          │ ◄────────────── Adapter Out (infraestrutura)
         └────────────────────────────────────┘
+                        │
+                        ▼
+        ┌────────────────────────────────────┐
+        │ EntidadeRepositoryJpa              │ ◄────────────── JPA (Spring Data)
+        └────────────────────────────────────┘
+                        │
+                        ▼
+        ┌────────────────────────────────────┐
+        │ EntidadeEntity (JPA)               │ ◄────────────── Representação persistente
+        └────────────────────────────────────┘
+
+
+        ◄────────────── Mapeamento ───────────────►
+   EntidadeRequest (DTO In)        EntidadeResponse (DTO Out)
+                │                           │
+                ▼                           ▼
+        ┌────────────────────────────────────┐
+        │ EntidadeMapper                     │ ◄────────────── Traduz entre DTOs e Domínio
+        └────────────────────────────────────┘
+                        │
+                        ▼
+        ┌────────────────────────────────────┐
+        │ Entidade (Domínio)                 │ ◄────────────── Núcleo do negócio
+        └────────────────────────────────────┘
+
 ```
 
 # 🧩 Resumo das responsabilidades:
@@ -92,3 +99,36 @@ Adapters (In/Out): implementam as portas, lidando com REST ou persistência.
 Domain Model: representa a entidade central da lógica de negócio.  
 
 Entity JPA: representa a entidade para persistência no banco de dados.  
+
+```
+/src/main/java/com/dominio/projeto/entidade/
+│
+├── adapter/                                      # Adaptadores: interfaces externas do sistema
+│   ├── in/                                       # Entrada do sistema (ex: HTTP, CLI, mensageria)
+│   │   └── rest/                                 # Adaptador REST (entrada por API HTTP)
+│   │       └── EntidadeController.java           # Recebe requisições HTTP → chama casos de uso
+│   └── out/                                      # Saída do sistema (banco, APIs externas, etc.)
+│       └── persistence/                          # Adaptador de persistência (infraestrutura)
+│           ├── EntidadeRepositoryJpa.java        # Interface JPA para manipular a entidade
+│           └── EntidadeRepositoryAdapter.java    # Implementa a porta de saída do domínio
+│
+├── application/                                  # Camada de aplicação (coordena os casos de uso)
+│   ├── service/                                  # Implementações dos casos de uso definidos no domínio
+│   │   └── EntidadeServiceImpl.java              # Implementa os casos de uso da entidade
+│   └── mapper/                                   # Conversores entre DTOs ↔ Domínio
+│       └── EntidadeMapper.java                   # Tradução de request/response para o modelo de domínio
+│
+├── domain/                                       # Núcleo de negócio (regra de negócio pura)
+│   ├── model/                                    # Entidades de domínio e suas regras
+│   │   └── Entidade.java                         # Entidade central com identidade própria
+│   └── port/                                     # Portas (interfaces) de entrada e saída do domínio
+│       ├── in/                                   # Porta de entrada (define o que o sistema faz)
+│       │   └── EntidadeUseCase.java              # Interface dos casos de uso do domínio
+│       └── out/                                  # Porta de saída (define o que o sistema precisa)
+│           └── EntidadeRepository.java           # Interface de persistência esperada pelo domínio
+│
+├── dto/                                          # Objetos de transporte (camada REST)
+│   ├── EntidadeRequest.java                      # Dados recebidos via HTTP (entrada)
+│   └── EntidadeResponse.java                     # Dados devolvidos via HTTP (saída)
+
+```
