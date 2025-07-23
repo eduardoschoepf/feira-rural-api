@@ -1,17 +1,15 @@
 package com.feirarural.api.produto.application.service;
 
-import java.util.List;
+import com.feirarural.api.produto.domain.model.Produto;
+import com.feirarural.api.produto.domain.port.in.ProdutoUseCase;
+import com.feirarural.api.produto.domain.port.out.ProdutoRepository;
 
 import org.springframework.stereotype.Service;
 
-import com.feirarural.api.produto.domain.model.Produto;
-import com.feirarural.api.produto.domain.port.ProdutoRepository;
-import com.feirarural.api.produto.domain.port.ProdutoService;
-import com.feirarural.api.produto.dto.ProdutoRequest;
-import com.feirarural.api.produto.dto.ProdutoResponse;
+import java.util.List;
 
 @Service
-public class ProdutoServiceImpl implements ProdutoService{
+public class ProdutoServiceImpl implements ProdutoUseCase{
     public final ProdutoRepository repository;
 
     public ProdutoServiceImpl(ProdutoRepository repository) {
@@ -19,46 +17,40 @@ public class ProdutoServiceImpl implements ProdutoService{
     }
 
     @Override
-    public ProdutoResponse salvar(ProdutoRequest request) {
-        Produto produto = new Produto(null, request.nome(), request.descricao(), request.preco(), request.unidadeMedida(), request.imagens(), request.produtorId(), request.categoriaId());
-        Produto salva = repository.salvar(produto);
-        return ProdutoResponse.from(salva);
+    public List<Produto> listarTodos() {
+        return repository.listarTodos();
     }
 
     @Override
-    public List<ProdutoResponse> listarTodos() {
-        return repository.listarTodos().stream()
-                .map(ProdutoResponse::from)
-                .toList();
+    public Produto salvar(Produto produto) {
+        return repository.salvar(produto);
     }
+
+   
     
     @Override
-    public ProdutoResponse buscarPorIdDTO(Long id) {
-        Produto produto = repository.buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
-        return ProdutoResponse.from(produto);
-    }
-    @Override
-    public ProdutoResponse atualizar(Long id, ProdutoRequest request) {
-        Produto produto = repository.buscarPorId(id)
+    public Produto buscarPorId(Long id) {
+        return repository.buscarPorId(id)
             .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+    }
 
-        produto.setNome(request.nome());
-        produto.setDescricao(request.descricao());
-        produto.setPreco(request.preco());
-        produto.setUnidadeMedida(request.unidadeMedida());
-        produto.setImagens(request.imagens());
-        produto.setProdutorId(request.produtorId());
-        produto.setCategoriaId(request.categoriaId());
-
-        Produto atualizada = repository.salvar(produto);
-        return ProdutoResponse.from(atualizada);
+    @Override
+    public Produto atualizar(Long id, Produto produto) {
+        Produto existente = buscarPorId(id);
+        existente.setNome(produto.getNome());
+        existente.setDescricao(produto.getDescricao());
+        existente.setUnidadeMedida(produto.getUnidadeMedida());
+        existente.setPreco(produto.getPreco());
+        existente.setImagens(produto.getImagens());
+        existente.setCategoriaId(produto.getCategoriaId());
+        existente.setProdutorId(produto.getProdutorId());
+        
+        return repository.salvar(existente);
     }
 
     @Override
     public void excluir(Long id) {
-        Produto produto = repository.buscarPorId(id)
-            .orElseThrow(() -> new RuntimeException("Produto não encontrado com ID: " + id));
+        Produto produto = buscarPorId(id);
         repository.excluir(produto);
     }
 }

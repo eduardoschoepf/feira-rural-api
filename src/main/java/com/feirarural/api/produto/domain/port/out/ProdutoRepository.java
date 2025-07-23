@@ -1,4 +1,4 @@
-package com.feirarural.api.produto.domain.port;
+package com.feirarural.api.produto.domain.port.out;
 
 import java.util.List;
 import java.util.Optional;

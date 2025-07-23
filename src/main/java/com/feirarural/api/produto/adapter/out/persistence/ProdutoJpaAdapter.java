@@ -1,7 +1,8 @@
 package com.feirarural.api.produto.adapter.out.persistence;
 
-import com.feirarural.api.produto.domain.port.ProdutoRepository;
 import com.feirarural.api.produto.domain.model.Produto;
+import com.feirarural.api.produto.domain.port.out.ProdutoRepository;
+
 import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;

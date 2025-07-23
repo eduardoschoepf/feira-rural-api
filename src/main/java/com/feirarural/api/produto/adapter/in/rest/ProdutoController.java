@@ -1,60 +1,76 @@
 package com.feirarural.api.produto.adapter.in.rest;
 
 import org.springframework.web.bind.annotation.RestController;
-import com.feirarural.api.produto.domain.port.ProdutoService;
+
+import com.feirarural.api.produto.application.mapper.ProdutoMapper;
+import com.feirarural.api.produto.domain.model.Produto;
+import com.feirarural.api.produto.domain.port.in.ProdutoUseCase;
 import com.feirarural.api.produto.dto.ProdutoRequest;
 import com.feirarural.api.produto.dto.ProdutoResponse;
 
-import jakarta.validation.Valid;
-
+import java.util.List;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
-import java.util.List;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @RestController
 @RequestMapping("/produtos")
 public class ProdutoController {
-    private final ProdutoService produtoService;
+    private final ProdutoUseCase produtoUseCase;
+    private final ProdutoMapper mapper;
 
-    public ProdutoController(ProdutoService produtoService) {
-        this.produtoService = produtoService;
+    public ProdutoController(ProdutoUseCase produtoUseCase, ProdutoMapper mapper) {
+        this.produtoUseCase = produtoUseCase;
+        this.mapper = mapper;
     }
 
     @GetMapping
     public ResponseEntity<List<ProdutoResponse>> listarTodos() {
-        return ResponseEntity.ok(produtoService.listarTodos());
+        List<Produto> produtos = produtoUseCase.listarTodos();
+        List<ProdutoResponse> responses = produtos.stream()
+            .map(mapper::toResponse)
+            .toList();
+
+        return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProdutoResponse> buscarPorId(@RequestParam Long id) {
-        return ResponseEntity.ok(produtoService.buscarPorIdDTO(id));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<ProdutoResponse> atualizar(@RequestParam Long id, @RequestBody ProdutoRequest request) {
-        ProdutoResponse response = produtoService.atualizar(id, request);
+    public ResponseEntity<?> buscarPorId(@PathVariable Long id) {
+        try {
+        Produto produto = produtoUseCase.buscarPorId(id);
+        ProdutoResponse response = mapper.toResponse(produto); // Aqui pode estourar
         return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> excluir(@RequestParam Long id) {
-        produtoService.excluir(id);
-        return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            e.printStackTrace(); // Imprime erro no console
+            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
+        }
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ProdutoResponse> criar(@Valid @RequestBody ProdutoRequest request) {
-        return ResponseEntity.ok(produtoService.salvar(request));
+    public ResponseEntity<ProdutoResponse> criar(@RequestBody ProdutoRequest request) {
+        Produto produto = mapper.toDomain(request);
+        Produto salva = produtoUseCase.salvar(produto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(mapper.toResponse(salva));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProdutoResponse> atualizar(@PathVariable Long id, @RequestBody ProdutoRequest request) {
+        Produto produto = mapper.toDomain(request);
+        Produto atualizada = produtoUseCase.atualizar(id, produto);
+        return ResponseEntity.ok(mapper.toResponse(atualizada));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        produtoUseCase.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 }
