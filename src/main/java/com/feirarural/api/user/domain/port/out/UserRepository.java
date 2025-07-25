@@ -10,4 +10,5 @@ public interface UserRepository {
     User salvar(User user);
     Optional<User> buscarPorId(Long id);
     void excluir(User user);
+    Optional<User> buscarPorEmail(String email);
 }

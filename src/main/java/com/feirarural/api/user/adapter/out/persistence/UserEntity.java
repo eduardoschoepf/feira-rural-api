@@ -1,5 +1,6 @@
 package com.feirarural.api.user.adapter.out.persistence;
 
+import com.feirarural.api.user.domain.model.TipoUsuario;
 import com.feirarural.api.user.domain.model.User;
 
 import jakarta.persistence.*;
@@ -12,17 +13,20 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nome;
+    @Column(nullable = false, unique = true)
     private String email;
-    private String senhaCriptografada;
-    private String tipo; // "produtor" ou "consumidor"
+    private String senha;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoUsuario tipo;
 
     public UserEntity() {}
 
-    public UserEntity(Long id, String nome, String email, String senhaCriptografada, String tipo) {
+    public UserEntity(Long id, String nome, String email, String senha, TipoUsuario tipo) {
         this.id = id;
         this.nome = nome;
         this.email = email;
-        this.senhaCriptografada = senhaCriptografada;
+        this.senha = senha;
         this.tipo = tipo;
     }
 
@@ -31,7 +35,7 @@ public class UserEntity {
             user.getId(),
             user.getNome(),
             user.getEmail(),
-            user.getSenhaCriptografada(),
+            user.getSenha(),
             user.getTipo()
         );
     }  
@@ -41,7 +45,7 @@ public class UserEntity {
             id,
             nome,
             email,
-            senhaCriptografada,
+            senha,
             tipo
         );
     }
@@ -57,9 +61,9 @@ public class UserEntity {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public String getSenhaCriptografada() { return senhaCriptografada; }
-    public void setSenhaCriptografada(String senhaCriptografada) { this.senhaCriptografada = senhaCriptografada; }
+    public String getSenha() { return senha; }
+    public void setSenha(String senha) { this.senha = senha; }
 
-    public String getTipo() { return tipo; }
-    public void setTipo(String tipo) { this.tipo = tipo; }
+    public TipoUsuario getTipo() { return tipo; }
+    public void setTipo(TipoUsuario tipo) { this.tipo = tipo; }
 }

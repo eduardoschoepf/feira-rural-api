@@ -1,9 +1,12 @@
 package com.feirarural.api.produto.application.mapper;
 
+import org.springframework.stereotype.Component;
+
 import com.feirarural.api.produto.domain.model.Produto;
 import com.feirarural.api.produto.dto.ProdutoRequest;
 import com.feirarural.api.produto.dto.ProdutoResponse;
 
+@Component
 public class ProdutoMapper {
 
     public Produto toDomain(ProdutoRequest request) {

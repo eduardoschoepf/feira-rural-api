@@ -9,6 +9,7 @@ import com.feirarural.api.produto.dto.ProdutoRequest;
 import com.feirarural.api.produto.dto.ProdutoResponse;
 
 import java.util.List;
+
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,13 +17,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
 
 @RestController
 @RequestMapping("/produtos")
 public class ProdutoController {
+
     private final ProdutoUseCase produtoUseCase;
     private final ProdutoMapper mapper;
 
@@ -33,6 +38,11 @@ public class ProdutoController {
 
     @GetMapping
     public ResponseEntity<List<ProdutoResponse>> listarTodos() {
+         // Verifica o usuário autenticado
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String emailUsuario = auth.getName();
+        System.out.println("Usuário autenticado: " + emailUsuario);
+        
         List<Produto> produtos = produtoUseCase.listarTodos();
         List<ProdutoResponse> responses = produtos.stream()
             .map(mapper::toResponse)

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+
 @RestController
 @RequestMapping("/categorias")
 public class CategoriaController {
