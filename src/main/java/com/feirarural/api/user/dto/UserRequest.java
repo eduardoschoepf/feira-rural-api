@@ -4,5 +4,5 @@ public record UserRequest(
     String nome,
     String email,
     String senha,
-    String tipo
+    String role  // Agora como String para facilitar a desserialização
 ) {}

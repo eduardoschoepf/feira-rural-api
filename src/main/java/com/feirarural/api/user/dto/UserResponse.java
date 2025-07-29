@@ -1,6 +1,5 @@
 package com.feirarural.api.user.dto;
 
-import com.feirarural.api.user.domain.model.TipoUsuario;
 import com.feirarural.api.user.domain.model.User;
 
 
@@ -8,7 +7,7 @@ public record UserResponse(
     Long id,
     String nome,
     String email,
-    TipoUsuario tipo,
+    String role,
     String senha
 ) {
     public static UserResponse from(User user) {
@@ -16,8 +15,8 @@ public record UserResponse(
             user.getId(),
             user.getNome(),
             user.getEmail(),
-            user.getTipo(),
-            user.getSenha()
+            user.getSenha(),
+            user.getRole().name() // Usamos o nome do enum (ADMIN, USUARIO)
         );
     }
 }

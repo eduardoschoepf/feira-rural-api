@@ -11,4 +11,5 @@ public interface UserRepository {
     Optional<User> buscarPorId(Long id);
     void excluir(User user);
     Optional<User> buscarPorEmail(String email);
+    boolean existePorEmail(String email);
 }
