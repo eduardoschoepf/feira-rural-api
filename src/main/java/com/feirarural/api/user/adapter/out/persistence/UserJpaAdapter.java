@@ -2,7 +2,6 @@ package com.feirarural.api.user.adapter.out.persistence;
 
 import com.feirarural.api.user.domain.model.User;
 import com.feirarural.api.user.domain.port.out.UserRepository;
-
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -46,5 +45,10 @@ public class UserJpaAdapter implements UserRepository {
     public Optional<User> buscarPorEmail(String email) {
         return jpaRepository.findByEmail(email)
                 .map(UserEntity::toDomain);
+    }
+
+    @Override
+    public boolean existePorEmail(String email) {
+        return jpaRepository.existsByEmail(email);
     }
 }
