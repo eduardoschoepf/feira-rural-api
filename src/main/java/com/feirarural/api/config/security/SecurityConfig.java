@@ -34,7 +34,6 @@ public class SecurityConfig {
                 // Rotas públicas
                 .requestMatchers(
                     "/api/auth/**",
-                    "/api/usuarios/register",
                     "/api-docs/**",
                     "/swagger-ui/**",
                     "/swagger-ui.html"
@@ -42,6 +41,8 @@ public class SecurityConfig {
                 
                 // Rotas administrativas
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                .requestMatchers("/api/produtos").authenticated()
                 
                 // Todas as outras requisições exigem autenticação
                 .anyRequest().authenticated()

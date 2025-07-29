@@ -39,6 +39,23 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
         
         jwt = authHeader.substring(7);
+
+        
+        String tokenType;
+        try {
+            tokenType = jwtService.extractClaim(jwt, claims -> (String) claims.get("type"));
+        } catch (Exception e) {
+            logger.warn("Token malformado ou inválido: {}", e);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (!"access".equals(tokenType)) {
+            logger.debug("Token rejeitado por não ser do tipo access");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         userEmail = jwtService.extractUsername(jwt);
         
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
